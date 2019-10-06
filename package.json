@@ -1,6 +1,9 @@
 {
   "name": "github-circle-ci",
   "version": "1.0.0",
+  "scripts": {
+	"test": "echo test"
+  },
   "main": "index.js",
   "repository": "git@github.com:AlekseyLeshko/github-circle-ci.git",
   "author": "AlekseyLeshko <alekseyleshko@gmail.com>",
