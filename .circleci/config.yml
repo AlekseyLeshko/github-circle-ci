@@ -33,3 +33,7 @@ jobs:
 
       - store_test_results:
           path: coverage
+
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
