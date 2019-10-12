@@ -2,7 +2,8 @@
   "name": "github-circle-ci",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --ci --runInBand"
   },
   "main": "index.js",
   "repository": "git@github.com:AlekseyLeshko/github-circle-ci.git",
