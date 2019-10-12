@@ -9,7 +9,7 @@ aliases:
       # Fallback in case checksum fails
       - v2-dependencies-{{ .Branch }}-
 
-  - &save-cache
+  - &save_cache
     paths:
       - node_modules
       - /usr/local/share/.cache/yarn/v4
@@ -51,7 +51,7 @@ jobs:
 
       - restore_cache: *restore_cache
       - run: *install
-      - save-cache: *save-cache
+      - save_cache: *save_cache
 
       - run:
           name: Code Has Arrived
