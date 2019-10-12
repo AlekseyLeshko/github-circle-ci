@@ -5,7 +5,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: circleci/<language>:<version TAG>
+      - image: circleci/node:10.10.0
     parallelism: 4
     steps:
       - run:
