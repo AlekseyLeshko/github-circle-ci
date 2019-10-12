@@ -97,26 +97,23 @@ workflows:
  version: 2
  Example_Workflow:
    jobs:
-     - Hello-World
-     - information
-     - showFiles
-     - I-Have-Code:
-         requires:
-           - Hello-World
-           - information
-     - Run-With-Node:
-         requires:
-           - Hello-World
-           - information
+    - Hello-World
+    - information
+    - showFiles
     - unitTesting:
+    - I-Have-Code:
          requires:
            - Hello-World
            - information
-     - Hold-For-Approval:
+    - Run-With-Node:
+         requires:
+           - Hello-World
+           - information
+    - Hold-For-Approval:
          requires:
            - Run-With-Node
            - I-Have-Code
            - unitTesting
-     - Now-Complete:
+    - Now-Complete:
          requires:
            - Hold-For-Approval
