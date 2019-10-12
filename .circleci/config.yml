@@ -30,3 +30,6 @@ jobs:
       - run:
           name: Unit test
           command: npm test
+
+      - store_test_results:
+          path: coverage
