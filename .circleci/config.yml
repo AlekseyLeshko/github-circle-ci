@@ -100,14 +100,17 @@ workflows:
      - Hello-World
      - information
      - showFiles
+     - unitTesting
      - I-Have-Code:
          requires:
            - Hello-World
            - information
+           - unitTesting
      - Run-With-Node:
          requires:
            - Hello-World
            - information
+           - unitTesting
      - Now-Complete:
          requires:
            - Run-With-Node
