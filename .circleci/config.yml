@@ -108,10 +108,7 @@ workflows:
          requires:
            - Hello-World
            - information
-     - Hold-For-Approval:
+     - Now-Complete:
          requires:
            - Run-With-Node
            - I-Have-Code
-     - Now-Complete:
-         requires:
-           - Hold-For-Approval
