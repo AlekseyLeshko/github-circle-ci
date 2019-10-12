@@ -10,8 +10,8 @@ jobs:
     steps:
       - run:
           command: |
-            echo $(circleci tests glob "src/**/*")
-            circleci tests glob "src/**/*" | xargs -n 1 echo
+            echo $(circleci tests glob "./src/**/*")
+            circleci tests glob "./src/**/*" | xargs -n 1 echo
 
   information:
     docker:
