@@ -49,7 +49,7 @@ jobs:
     steps:
       - checkout
 
-      - restore-cache: *restore-cache
+      - restore_cache: *restore-cache
       - run: *install
       - save-cache: *save-cache
 
