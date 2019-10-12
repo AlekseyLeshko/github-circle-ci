@@ -2,10 +2,13 @@
   "name": "github-circle-ci",
   "version": "1.0.0",
   "scripts": {
-	"test": "echo test"
+    "test": "jest"
   },
   "main": "index.js",
   "repository": "git@github.com:AlekseyLeshko/github-circle-ci.git",
   "author": "AlekseyLeshko <alekseyleshko@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
 }
