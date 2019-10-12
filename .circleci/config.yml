@@ -28,6 +28,12 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       - run:
+          name: Check versions
+          command: |
+            npm -v
+            yarn -v
+
+      - run:
           name: Unit test
           command: npm run test:ci
 
