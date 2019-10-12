@@ -2,6 +2,21 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+aliases:
+  - &restore-cache
+    keys:
+      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # Fallback in case checksum fails
+      - v2-dependencies-{{ .Branch }}-
+
+  - &save-cache
+    paths:
+      - node_modules
+      - /usr/local/share/.cache/yarn/v4
+    key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+  - &install yarn --no-progress --frozen-lockfile
+
 jobs:
   information:
     docker:
@@ -34,13 +49,10 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run:
-          name: Install dependencies
-          command: npm install
+      - restore-cache: *restore-cache
+      - run: *install
+      - save-cache: *save-cache
+
       - run:
           name: Code Has Arrived
           command: |
