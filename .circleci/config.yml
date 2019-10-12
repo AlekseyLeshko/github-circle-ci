@@ -3,6 +3,16 @@
 #
 version: 2.1
 jobs:
+  test:
+    docker:
+      - image: circleci/<language>:<version TAG>
+    parallelism: 4
+    steps:
+      - run:
+          command: |
+            echo $(circleci tests glob "src/**/*")
+            circleci tests glob "src/**/*" | xargs -n 1 echo
+
   information:
     docker:
       - image: circleci/node:10.10.0
@@ -97,6 +107,7 @@ workflows:
  version: 2
  Example_Workflow:
    jobs:
+     - test
      - Hello-World
      - information
      - showFiles
@@ -106,6 +117,7 @@ workflows:
            - Hello-World
            - information
            - unitTesting
+           - test
      - Run-With-Node:
          requires:
            - Hello-World
