@@ -182,6 +182,6 @@ workflows:
  master_workflow:
   jobs:
     - master_branch:
-      filters:
-        branches:
-          only: /^master$/
+        filters:
+          branches:
+            only: master
