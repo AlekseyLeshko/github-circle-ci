@@ -131,28 +131,68 @@ jobs:
           path: coverage
           prefix: coverage
 
+  master_branch:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "d2:fe:f7:91:bb:85:92:49:c7:d4:cf:ae:f5:d8:eb:b8"
+      - checkout
+      - run:
+          name: Update version or exit
+          command: |
+            export CURRENT_HASH=$(echo $(git rev-parse --short HEAD))
+            echo $CURRENT_HASH
+            export COMMIT_MESSAGE="$(echo $(git log -n 1 --pretty=format:%B))"
+            echo $COMMIT_MESSAGE
+            export VERSION_TYPE="patch"
+            export TAG=$(echo $(git tag --contains $CURRENT_HASH))
+            echo $TAG
+            # export VERSION_TYPE=$(node pipelines/get-version-type.js "$COMMIT_MESSAGE")
+            if [ ! -z "$TAG" ] ; then exit 0; fi
+            echo $VERSION_TYPE
+            git --version
+            git status
+            git config --global push.default simple
+            git config --global user.email "circleci@example.com"
+            git config --global user.name "CircleCI"
+            npm version $VERSION_TYPE -m "v%s"
+            git status
+            git push --follow-tags
+
 workflows:
- version: 2
- main_workflow:
-  jobs:
-    - flow: *deploy_branch_to_dev
-    - flow_coverage: *deploy_branch_to_dev
-    - storybook: *deploy_branch_to_dev
-    - bundle_analyzer: *deploy_branch_to_dev
-    - build: *deploy_branch_to_dev
-    - unit_testing: *deploy_branch_to_dev
+  version: 2
+  main_workflow:
+    jobs:
+      - flow: *deploy_branch_to_dev
+      - flow_coverage: *deploy_branch_to_dev
+      - storybook: *deploy_branch_to_dev
+      - bundle_analyzer: *deploy_branch_to_dev
+      - build: *deploy_branch_to_dev
+      - unit_testing: *deploy_branch_to_dev
 
-    - deploy_to_stage:
-        <<: *deploy_branch_to_dev
-        requires:
-          - flow
-          - flow_coverage
-          - storybook
-          - bundle_analyzer
-          - build
-          - unit_testing
+      - deploy_to_stage:
+          <<: *deploy_branch_to_dev
+          requires:
+            - flow
+            - flow_coverage
+            - storybook
+            - bundle_analyzer
+            - build
+            - unit_testing
 
-    - e2e_testing:
-        <<: *deploy_branch_to_dev
-        requires:
-          - deploy_to_stage
+      - e2e_testing:
+          <<: *deploy_branch_to_dev
+          requires:
+            - deploy_to_stage
+
+  master_workflow:
+    jobs:
+      - master_branch:
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
