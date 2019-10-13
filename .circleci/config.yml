@@ -28,8 +28,8 @@ jobs:
       - run: *install_dependencies
       - save_cache: *save_cache
       - run:
-        name: Check flow
-        command: echo 'check flow'
+          name: Check flow
+          command: echo 'check flow'
 
   flow_coverage:
     docker:
@@ -41,8 +41,8 @@ jobs:
       - run: *install_dependencies
       - save_cache: *save_cache
       - run:
-        name: Flow coverage
-        command: echo 'flow coverage 100%'
+          name: Flow coverage
+          command: echo 'flow coverage 100%'
 
   storybook:
     docker:
@@ -96,12 +96,12 @@ jobs:
       - save_cache: *save_cache
 
       - run:
-        name: Simulation e2e testing
-        command: npm run test:ci
+          name: Simulation e2e testing
+          command: npm run test:ci
 
       - store_artifacts:
-        path: coverage
-        prefix: coverage
+          path: coverage
+          prefix: coverage
 
   unit_testing:
     docker:
@@ -114,15 +114,15 @@ jobs:
       - save_cache: *save_cache
 
       - run:
-        name: Unit testing
-        command: npm run test:ci
+          name: Unit testing
+          command: npm run test:ci
 
       - store_test_results:
-        path: coverage
+          path: coverage
 
       - store_artifacts:
-        path: coverage
-        prefix: coverage
+          path: coverage
+          prefix: coverage
 
 workflows:
  version: 2
@@ -136,14 +136,14 @@ workflows:
     - unit_testing
 
     - deploy_to_stage:
-      requires:
-        - flow
-        - flow_coverage
-        - storybook
-        - bundle_analyzer
-        - build
-        - unit_testing
+        requires:
+          - flow
+          - flow_coverage
+          - storybook
+          - bundle_analyzer
+          - build
+          - unit_testing
 
     - e2e_testing:
-      requires:
-        - deploy_to_stage
+        requires:
+          - deploy_to_stage
