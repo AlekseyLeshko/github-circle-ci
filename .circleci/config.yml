@@ -138,7 +138,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "af:91:7b:a8:9a:97:d0:2d:8a:ba:84:73:39:49:5e:70"
+            - "d2:fe:f7:91:bb:85:92:49:c7:d4:cf:ae:f5:d8:eb:b8"
       - checkout
       - run:
           name: Update version or exit
