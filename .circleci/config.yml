@@ -160,27 +160,36 @@ jobs:
             git push --follow-tags
 
 workflows:
- version: 2
- main_workflow:
-  jobs:
-    - flow: *deploy_branch_to_dev
-    - flow_coverage: *deploy_branch_to_dev
-    - storybook: *deploy_branch_to_dev
-    - bundle_analyzer: *deploy_branch_to_dev
-    - build: *deploy_branch_to_dev
-    - unit_testing: *deploy_branch_to_dev
+  version: 2
+  main_workflow:
+    jobs:
+      - flow: *deploy_branch_to_dev
+      - flow_coverage: *deploy_branch_to_dev
+      - storybook: *deploy_branch_to_dev
+      - bundle_analyzer: *deploy_branch_to_dev
+      - build: *deploy_branch_to_dev
+      - unit_testing: *deploy_branch_to_dev
 
-    - deploy_to_stage:
-        <<: *deploy_branch_to_dev
-        requires:
-          - flow
-          - flow_coverage
-          - storybook
-          - bundle_analyzer
-          - build
-          - unit_testing
+      - deploy_to_stage:
+          <<: *deploy_branch_to_dev
+          requires:
+            - flow
+            - flow_coverage
+            - storybook
+            - bundle_analyzer
+            - build
+            - unit_testing
 
-    - e2e_testing:
-        <<: *deploy_branch_to_dev
-        requires:
-          - deploy_to_stage
+      - e2e_testing:
+          <<: *deploy_branch_to_dev
+          requires:
+            - deploy_to_stage
+
+  master_workflow:
+    jobs:
+      - master_branch:
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
