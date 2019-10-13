@@ -3,13 +3,19 @@
 #
 version: 2.1
 aliases:
-  - &deploy_branch_to_dev
+  - &deploy_to_dev
     context: dev
     filters:
       branches:
         only:
           - /feature\/.*/
           - /bugfix\/.*/
+
+  - &deploy_to_stage
+    context: stage
+    filters:
+      branches:
+        only: master
 
   - &restore_cache
     keys:
@@ -25,17 +31,21 @@ aliases:
 
   - &install_dependencies yarn --no-progress --frozen-lockfile
 
+  - &show_env_variables
+    name: Env variables
+    command: |
+      echo ${REPO_VARIABLE}
+      echo ${CONTEXT}
+      echo ${API_URL}
+      echo ${TOKEN}
+
 jobs:
   env:
     docker:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
-      - run:
-          name: Envs
-          command: |
-            echo ${API_URL}
-            echo ${TOKEN}
+      - run: *show_env_variables
 
   flow:
     docker:
@@ -43,6 +53,7 @@ jobs:
     resource_class: small
     steps:
       - checkout
+      - run: *show_env_variables
       - restore_cache: *restore_cache
       - run: *install_dependencies
       - save_cache: *save_cache
@@ -55,6 +66,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
@@ -68,6 +80,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
@@ -79,6 +92,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
@@ -90,17 +104,19 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
       - save_cache: *save_cache
       - run: echo 'Build project'
 
-  deploy_to_stage:
+  deploy_to_aws:
     docker:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - run: echo 'Deploy to stage'
 
   e2e_testing:
@@ -109,6 +125,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
@@ -127,6 +144,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - checkout
       - restore_cache: *restore_cache
       - run: *install_dependencies
@@ -148,6 +166,7 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - run: *show_env_variables
       - add_ssh_keys:
           fingerprints:
             - "d2:fe:f7:91:bb:85:92:49:c7:d4:cf:ae:f5:d8:eb:b8"
@@ -176,27 +195,18 @@ jobs:
 
 workflows:
   version: 2
-  main_workflow:
+  development_workflow:
     jobs:
-      - env:
-          name: env2
-          context: stage
-          filters:
-            branches:
-              only:
-                - /feature\/.*/
-                - /bugfix\/.*/
+      - env: *deploy_to_dev
+      - flow: *deploy_to_dev
+      - flow_coverage: *deploy_to_dev
+      - storybook: *deploy_to_dev
+      - bundle_analyzer: *deploy_to_dev
+      - build: *deploy_to_dev
+      - unit_testing: *deploy_to_dev
 
-      - env: *deploy_branch_to_dev
-      - flow: *deploy_branch_to_dev
-      - flow_coverage: *deploy_branch_to_dev
-      - storybook: *deploy_branch_to_dev
-      - bundle_analyzer: *deploy_branch_to_dev
-      - build: *deploy_branch_to_dev
-      - unit_testing: *deploy_branch_to_dev
-
-      - deploy_to_stage:
-          <<: *deploy_branch_to_dev
+      - deploy_to_aws:
+          <<: *deploy_to_dev
           requires:
             - flow
             - flow_coverage
@@ -206,9 +216,34 @@ workflows:
             - unit_testing
 
       - e2e_testing:
-          <<: *deploy_branch_to_dev
+          <<: *deploy_to_dev
           requires:
-            - deploy_to_stage
+            - deploy_to_aws
+
+  staging_workflow:
+    jobs:
+      - env: *deploy_to_stage
+      - flow: *deploy_to_stage
+      - flow_coverage: *deploy_to_stage
+      - storybook: *deploy_to_stage
+      - bundle_analyzer: *deploy_to_stage
+      - build: *deploy_to_stage
+      - unit_testing: *deploy_to_stage
+
+      - deploy_to_aws:
+          <<: *deploy_to_stage
+          requires:
+            - flow
+            - flow_coverage
+            - storybook
+            - bundle_analyzer
+            - build
+            - unit_testing
+
+      - e2e_testing:
+          <<: *deploy_to_stage
+          requires:
+            - deploy_to_aws
 
   master_workflow:
     jobs:
