@@ -3,6 +3,13 @@
 #
 version: 2.1
 aliases:
+  - &deploy_branch_to_dev
+    filters:
+      branches:
+        only:
+          - /feature\/*/
+          - /bugfix\/*/
+
   - &restore_cache
     keys:
       - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
@@ -128,14 +135,15 @@ workflows:
  version: 2
  main_workflow:
   jobs:
-    - flow
-    - flow_coverage
-    - storybook
-    - bundle_analyzer
-    - build
-    - unit_testing
+    - flow: *deploy_branch_to_dev
+    - flow_coverage: *deploy_branch_to_dev
+    - storybook: *deploy_branch_to_dev
+    - bundle_analyzer: *deploy_branch_to_dev
+    - build: *deploy_branch_to_dev
+    - unit_testing: *deploy_branch_to_dev
 
     - deploy_to_stage:
+        <<: *deploy_branch_to_dev
         requires:
           - flow
           - flow_coverage
@@ -145,5 +153,6 @@ workflows:
           - unit_testing
 
     - e2e_testing:
+        <<: *deploy_branch_to_dev
         requires:
           - deploy_to_stage
