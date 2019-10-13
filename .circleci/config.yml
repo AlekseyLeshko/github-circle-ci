@@ -4,7 +4,7 @@
 version: 2.1
 aliases:
   - &deploy_branch_to_dev
-    context: stage
+    context: dev
     filters:
       branches:
         only:
@@ -178,6 +178,15 @@ workflows:
   version: 2
   main_workflow:
     jobs:
+      - env:
+          name: env2
+          context: stage
+          filters:
+            branches:
+              only:
+                - /feature\/.*/
+                - /bugfix\/.*/
+
       - env: *deploy_branch_to_dev
       - flow: *deploy_branch_to_dev
       - flow_coverage: *deploy_branch_to_dev
