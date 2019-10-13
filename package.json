@@ -1,6 +1,6 @@
 {
   "name": "github-circle-ci",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "scripts": {
     "test": "jest",
     "test:ci": "jest --ci --runInBand"
