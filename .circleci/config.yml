@@ -136,6 +136,9 @@ jobs:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "af:91:7b:a8:9a:97:d0:2d:8a:ba:84:73:39:49:5e:70"
       - checkout
       - run:
           name: Update version or exit
