@@ -131,6 +131,31 @@ jobs:
           path: coverage
           prefix: coverage
 
+  master_branch:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Update version or exit
+          command: |
+            export CURRENT_HASH=$(echo $(git rev-parse --short HEAD))
+            echo $CURRENT_HASH
+            # export TAG=$(echo $(git tag --contains $CURRENT_HASH))
+            # echo $TAG
+            # if [ ! -z "$TAG" ] ; then exit 0; fi
+            export COMMIT_MESSAGE="$(echo $(git log -n 1 --pretty=format:%B))"
+            echo $COMMIT_MESSAGE
+            export VERSION_TYPE="patch"
+            # export VERSION_TYPE=$(node pipelines/get-version-type.js "$COMMIT_MESSAGE")
+            echo $VERSION_TYPE
+            git -v
+            git status
+            # npm version $VERSION_TYPE -m "v%s"
+            # git status
+            # git push --follow-tags
+
 workflows:
  version: 2
  main_workflow:
@@ -156,3 +181,12 @@ workflows:
         <<: *deploy_branch_to_dev
         requires:
           - deploy_to_stage
+
+ master_workflow:
+  jobs:
+    - master_branch:
+      filters:
+        branches:
+          only: master
+        tags:
+          ignore: /.*/
