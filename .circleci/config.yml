@@ -16,8 +16,6 @@ aliases:
     filters:
       tags:
         only: /v.*/
-      branches:
-        only: master
 
   - &restore_cache
     keys:
