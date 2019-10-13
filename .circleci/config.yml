@@ -42,7 +42,7 @@ jobs:
       - save_cache: *save_cache
       - run:
         name: Flow coverage
-        command: echo 'flow coverage: 100%'
+        command: echo 'flow coverage\: 100%'
 
   storybook:
     docker:
