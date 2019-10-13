@@ -149,9 +149,11 @@ jobs:
             echo $VERSION_TYPE
             git --version
             git status
-            # npm version $VERSION_TYPE -m "v%s"
-            # git status
-            # git push --follow-tags
+            git config --global user.email "circleci@example.com"
+            git config --global user.name "CircleCI"
+            npm version $VERSION_TYPE -m "v%s"
+            git status
+            git push --follow-tags
 
 workflows:
  version: 2
