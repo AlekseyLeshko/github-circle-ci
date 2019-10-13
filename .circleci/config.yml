@@ -184,10 +184,3 @@ workflows:
         <<: *deploy_branch_to_dev
         requires:
           - deploy_to_stage
-
- master_workflow:
-  jobs:
-    - master_branch:
-        filters:
-          branches:
-            only: master
