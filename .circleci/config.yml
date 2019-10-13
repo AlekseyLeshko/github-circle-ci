@@ -184,7 +184,5 @@ workflows:
     - master_branch:
       filters:
         branches:
-          only: master
-          ignore: /.*/
-        tags:
-          ignore: /.*/
+          only:
+            - master
