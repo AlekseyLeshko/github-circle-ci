@@ -15,7 +15,9 @@ aliases:
     context: stage
     filters:
       branches:
-        only: master
+        ignore: /.*/
+      tags:
+        only: /v.*/
 
   - &restore_cache
     keys:
@@ -194,7 +196,6 @@ jobs:
             git push --follow-tags
 
 workflows:
-  version: 2
   development_workflow:
     jobs:
       - env: *deploy_to_dev
