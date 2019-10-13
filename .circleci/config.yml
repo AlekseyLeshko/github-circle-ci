@@ -14,8 +14,6 @@ aliases:
   - &deploy_to_stage
     context: stage
     filters:
-      branches:
-        ignore: /.*/
       tags:
         only: /v.*/
 
