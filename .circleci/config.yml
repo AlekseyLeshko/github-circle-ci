@@ -150,7 +150,7 @@ jobs:
             export VERSION_TYPE="patch"
             # export VERSION_TYPE=$(node pipelines/get-version-type.js "$COMMIT_MESSAGE")
             echo $VERSION_TYPE
-            git -v
+            git --version
             git status
             # npm version $VERSION_TYPE -m "v%s"
             # git status
