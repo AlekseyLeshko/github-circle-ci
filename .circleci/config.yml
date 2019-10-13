@@ -142,9 +142,6 @@ jobs:
           command: |
             export CURRENT_HASH=$(echo $(git rev-parse --short HEAD))
             echo $CURRENT_HASH
-            # export TAG=$(echo $(git tag --contains $CURRENT_HASH))
-            # echo $TAG
-            # if [ ! -z "$TAG" ] ; then exit 0; fi
             export COMMIT_MESSAGE="$(echo $(git log -n 1 --pretty=format:%B))"
             echo $COMMIT_MESSAGE
             export VERSION_TYPE="patch"
@@ -152,9 +149,9 @@ jobs:
             echo $VERSION_TYPE
             git --version
             git status
-            # npm version $VERSION_TYPE -m "v%s"
-            # git status
-            # git push --follow-tags
+            npm version $VERSION_TYPE -m "v%s"
+            git status
+            git push --follow-tags
 
 workflows:
  version: 2
