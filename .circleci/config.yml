@@ -7,8 +7,8 @@ aliases:
     filters:
       branches:
         only:
-          - /feature\/*/
-          - /bugfix\/*/
+          - /feature\/.*/
+          - /bugfix\/.*/
 
   - &restore_cache
     keys:
