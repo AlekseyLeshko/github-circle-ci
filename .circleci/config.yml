@@ -25,6 +25,19 @@ aliases:
   - &install_dependencies yarn --no-progress --frozen-lockfile
 
 jobs:
+  env:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    environment:
+      PREFIX: STAGE
+    steps:
+      - run:
+          name: Envs
+          command: |
+            echo ${PREFIX}
+            echo ${STAGE_API_URL}
+
   flow:
     docker:
       - image: circleci/node:10.10.0
@@ -166,6 +179,7 @@ workflows:
   version: 2
   main_workflow:
     jobs:
+      - env: *deploy_branch_to_dev
       - flow: *deploy_branch_to_dev
       - flow_coverage: *deploy_branch_to_dev
       - storybook: *deploy_branch_to_dev
