@@ -15,116 +15,135 @@ aliases:
       - /usr/local/share/.cache/yarn/v4
     key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
-  - &install yarn --no-progress --frozen-lockfile
+  - &install_dependencies yarn --no-progress --frozen-lockfile
 
 jobs:
-  information:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
-    steps:
-      - run:
-          name: Check versions
-          command: |
-            npm -v
-            yarn -v
-
-  showFiles:
+  flow:
     docker:
       - image: circleci/node:10.10.0
     resource_class: small
     steps:
       - checkout
-      - run:
-          name: Code Has Arrived
-          command: |
-            ls -al
-            echo '^^^That should look familiar^^^'
-
-  unitTesting:
-    parallelism: 4
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
-    steps:
-      - checkout
-
       - restore_cache: *restore_cache
-      - run: *install
+      - run: *install_dependencies
+      - save_cache: *save_cache
+      - run:
+        name: Check flow
+        command: echo "check flow"
+
+  flow_coverage:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
+      - save_cache: *save_cache
+      - run:
+        name: Flow coverage
+        command: echo "flow coverage: 100%"
+
+  storybook:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
+      - save_cache: *save_cache
+      - run: echo "Build storybook"
+
+  bundle_analyzer:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
+      - save_cache: *save_cache
+      - run: echo "Bundle analyzer"
+
+  build:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
+      - save_cache: *save_cache
+      - run: echo "Build project"
+
+  deploy_to_stage:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - run: echo "Deploy to stage"
+
+  e2e_testing:
+    parallelism: 2
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
       - save_cache: *save_cache
 
       - run:
-          name: Code Has Arrived
-          command: |
-            ls -al
-            echo '^^^That should look familiar^^^'
-
-      - run:
-          name: Unit test
-          command: npm run test:ci
-
-      - store_test_results:
-          path: coverage
+        name: Simulation e2e testing
+        command: npm run test:ci
 
       - store_artifacts:
-          path: coverage
-          prefix: coverage
+        path: coverage
+        prefix: coverage
 
-  Hello-World:
+  unit_testing:
     docker:
-      - image: alpine:3.7
-    steps:
-      - run:
-          name: Hello World
-          command: |
-            echo 'Hello World!'
-            echo 'This is the delivery pipeline'
-  I-Have-Code:
-    docker:
-      - image: alpine:3.7
+      - image: circleci/node:10.10.0
+    resource_class: small
     steps:
       - checkout
+      - restore_cache: *restore_cache
+      - run: *install_dependencies
+      - save_cache: *save_cache
+
       - run:
-          name: Code Has Arrived
-          command: |
-            ls -al
-            echo '^^^That should look familiar^^^'
-  Run-With-Node:
-    docker:
-      - image: circleci/node:10-browsers
-    steps:
-      - run:
-          name: Running In A Container With Node
-          command: |
-            node -v
-  Now-Complete:
-    docker:
-      - image: alpine:3.7
-    steps:
-      - run:
-          name: Approval Complete
-          command: |
-            echo 'Do work once the approval has completed'
+        name: Unit testing
+        command: npm run test:ci
+
+      - store_test_results:
+        path: coverage
+
+      - store_artifacts:
+        path: coverage
+        prefix: coverage
 
 workflows:
  version: 2
- Example_Workflow:
-   jobs:
-     - Hello-World
-     - information
-     - showFiles
-     - unitTesting
-     - I-Have-Code:
-         requires:
-           - Hello-World
-           - information
-           - unitTesting
-     - Run-With-Node:
-         requires:
-           - Hello-World
-           - information
-           - unitTesting
-     - Now-Complete:
-         requires:
-           - Run-With-Node
-           - I-Have-Code
+ main_workflow:
+  jobs:
+    - flow
+    - flow_coverage
+    - storybook
+    - bundle_analyzer
+    - build
+    - unit_testing
+
+    - deploy_to_stage:
+      requires:
+        - flow
+        - flow_coverage
+        - storybook
+        - bundle_analyzer
+        - build
+        - unit_testing
+
+    - e2e_testing:
+      requires:
+        - deploy_to_stage
