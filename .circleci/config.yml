@@ -148,7 +148,10 @@ jobs:
             export COMMIT_MESSAGE="$(echo $(git log -n 1 --pretty=format:%B))"
             echo $COMMIT_MESSAGE
             export VERSION_TYPE="patch"
+            export TAG=$(echo $(git tag --contains $CURRENT_HASH))
+            echo $TAG
             # export VERSION_TYPE=$(node pipelines/get-version-type.js "$COMMIT_MESSAGE")
+            if [ ! -z "$TAG" ] ; then exit 0; fi
             echo $VERSION_TYPE
             git --version
             git status
