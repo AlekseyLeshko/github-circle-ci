@@ -35,6 +35,7 @@ jobs:
           name: Envs
           command: |
             echo ${API_URL}
+            echo ${TOKEN}
 
   flow:
     docker:
