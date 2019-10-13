@@ -149,6 +149,7 @@ jobs:
             echo $VERSION_TYPE
             git --version
             git status
+            git config --global push.default simple
             git config --global user.email "circleci@example.com"
             git config --global user.name "CircleCI"
             npm version $VERSION_TYPE -m "v%s"
