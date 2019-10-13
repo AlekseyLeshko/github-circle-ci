@@ -36,7 +36,7 @@ jobs:
           name: Envs
           command: |
             echo ${PREFIX}
-            echo ${STAGE_API_URL}
+            echo ${${PREFIX}_API_URL}
 
   flow:
     docker:
