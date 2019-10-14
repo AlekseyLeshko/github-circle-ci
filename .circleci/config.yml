@@ -19,6 +19,14 @@ aliases:
       branches:
         ignore: /.*/
 
+  - &deploy_to_production
+    context: production
+    filters:
+      tags:
+        only: /v.*/
+      branches:
+        ignore: /.*/
+
   - &restore_cache
     keys:
       - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
@@ -243,6 +251,32 @@ workflows:
 
       - e2e_testing:
           <<: *deploy_to_stage
+          requires:
+            - deploy_to_aws
+
+  production_workflow:
+    jobs:
+      - env: *deploy_to_production
+      - flow: *deploy_to_production
+      - flow_coverage: *deploy_to_production
+      - storybook: *deploy_to_production
+      - bundle_analyzer: *deploy_to_production
+      - build: *deploy_to_production
+      - unit_testing: *deploy_to_production
+
+      - deploy_to_aws:
+          <<: *deploy_to_production
+          type: approval
+          requires:
+            - flow
+            - flow_coverage
+            - storybook
+            - bundle_analyzer
+            - build
+            - unit_testing
+
+      - e2e_testing:
+          <<: *deploy_to_production
           requires:
             - deploy_to_aws
 
