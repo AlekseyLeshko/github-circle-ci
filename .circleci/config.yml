@@ -33,6 +33,12 @@ commands:
             echo ${API_URL}
             echo ${TOKEN}
 
+executors:
+  main-nodejs:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+
 aliases:
   - &deploy_to_dev
     context: dev
@@ -60,16 +66,12 @@ aliases:
 
 jobs:
   env:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
 
   flow:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - checkout
       - show-env-variables
@@ -81,9 +83,7 @@ jobs:
           command: echo 'check flow'
 
   flow_coverage:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -95,9 +95,7 @@ jobs:
           command: echo 'flow coverage 100%'
 
   storybook:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -107,9 +105,7 @@ jobs:
       - run: echo 'Build storybook'
 
   bundle_analyzer:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -119,9 +115,7 @@ jobs:
       - run: echo 'Bundle analyzer'
 
   build:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -131,18 +125,14 @@ jobs:
       - run: echo 'Build project'
 
   deploy_to_aws:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - run: echo 'Deploy to stage'
 
   e2e_testing:
     parallelism: 2
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -159,9 +149,7 @@ jobs:
           prefix: coverage
 
   unit_testing:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - checkout
@@ -181,9 +169,7 @@ jobs:
           prefix: coverage
 
   master_branch:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - show-env-variables
       - add_ssh_keys:
