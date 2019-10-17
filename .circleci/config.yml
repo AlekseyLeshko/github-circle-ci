@@ -10,6 +10,9 @@ commands:
             - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
             # Fallback in case checksum fails
             - v2-dependencies-{{ .Branch }}-
+  install-dependencies:
+    steps:
+      - run: yarn --no-progress --frozen-lockfile
 
 aliases:
   - &deploy_to_dev
@@ -36,19 +39,11 @@ aliases:
       branches:
         ignore: /.*/
 
-  - &restore_cache
-    keys:
-      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      # Fallback in case checksum fails
-      - v2-dependencies-{{ .Branch }}-
-
   - &save_cache
     paths:
       - node_modules
       - /usr/local/share/.cache/yarn/v4
     key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-
-  - &install_dependencies yarn --no-progress --frozen-lockfile
 
   - &show_env_variables
     name: Env variables
@@ -74,7 +69,7 @@ jobs:
       - checkout
       - run: *show_env_variables
       - restore-cache
-      - run: *install_dependencies
+      - install-dependencies
       - save_cache: *save_cache
       - run:
           name: Check flow
@@ -87,8 +82,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
       - run:
           name: Flow coverage
@@ -101,8 +96,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
       - run: echo 'Build storybook'
 
@@ -113,8 +108,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
       - run: echo 'Bundle analyzer'
 
@@ -125,8 +120,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
       - run: echo 'Build project'
 
@@ -146,8 +141,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
 
       - run:
@@ -165,8 +160,8 @@ jobs:
     steps:
       - run: *show_env_variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
+      - restore-cache
+      - install-dependencies
       - save_cache: *save_cache
 
       - run:
