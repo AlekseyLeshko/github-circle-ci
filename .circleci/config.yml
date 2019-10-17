@@ -2,6 +2,12 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+commands:
+  restore-cache:
+    keys:
+      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # Fallback in case checksum fails
+      - v2-dependencies-{{ .Branch }}-
 aliases:
   - &deploy_to_dev
     context: dev
@@ -64,7 +70,7 @@ jobs:
     steps:
       - checkout
       - run: *show_env_variables
-      - restore_cache: *restore_cache
+      - restore-cache
       - run: *install_dependencies
       - save_cache: *save_cache
       - run:
