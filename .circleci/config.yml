@@ -2,6 +2,43 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+commands:
+  restore-cache:
+    steps:
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            # Fallback in case checksum fails
+            - v2-dependencies-{{ .Branch }}-
+
+  save-cache:
+    steps:
+      - save_cache:
+          paths:
+            - node_modules
+            - /usr/local/share/.cache/yarn/v4
+          key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
+  install-dependencies:
+    steps:
+      - run: yarn --no-progress --frozen-lockfile
+
+  show-env-variables:
+    steps:
+      - run:
+          name: Env variables
+          command: |
+            echo ${REPO_VARIABLE}
+            echo ${CONTEXT}
+            echo ${API_URL}
+            echo ${TOKEN}
+
+executors:
+  main-nodejs:
+    docker:
+      - image: circleci/node:10.10.0
+    resource_class: small
+
 aliases:
   - &deploy_to_dev
     context: dev
@@ -27,119 +64,81 @@ aliases:
       branches:
         ignore: /.*/
 
-  - &restore_cache
-    keys:
-      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      # Fallback in case checksum fails
-      - v2-dependencies-{{ .Branch }}-
-
-  - &save_cache
-    paths:
-      - node_modules
-      - /usr/local/share/.cache/yarn/v4
-    key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-
-  - &install_dependencies yarn --no-progress --frozen-lockfile
-
-  - &show_env_variables
-    name: Env variables
-    command: |
-      echo ${REPO_VARIABLE}
-      echo ${CONTEXT}
-      echo ${API_URL}
-      echo ${TOKEN}
-
 jobs:
   env:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
 
   flow:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
       - checkout
-      - run: *show_env_variables
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - show-env-variables
+      - restore-cache
+      - install-dependencies
+      - save-cache
       - run:
           name: Check flow
           command: echo 'check flow'
 
   flow_coverage:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
       - run:
           name: Flow coverage
           command: echo 'flow coverage 100%'
 
   storybook:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
       - run: echo 'Build storybook'
 
   bundle_analyzer:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
       - run: echo 'Bundle analyzer'
 
   build:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
       - run: echo 'Build project'
 
   deploy_to_aws:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - run: echo 'Deploy to stage'
 
   e2e_testing:
     parallelism: 2
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
 
       - run:
           name: Simulation e2e testing
@@ -150,15 +149,13 @@ jobs:
           prefix: coverage
 
   unit_testing:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - checkout
-      - restore_cache: *restore_cache
-      - run: *install_dependencies
-      - save_cache: *save_cache
+      - restore-cache
+      - install-dependencies
+      - save-cache
 
       - run:
           name: Unit testing
@@ -172,11 +169,9 @@ jobs:
           prefix: coverage
 
   master_branch:
-    docker:
-      - image: circleci/node:10.10.0
-    resource_class: small
+    executor: main-nodejs
     steps:
-      - run: *show_env_variables
+      - show-env-variables
       - add_ssh_keys:
           fingerprints:
             - "d2:fe:f7:91:bb:85:92:49:c7:d4:cf:ae:f5:d8:eb:b8"
