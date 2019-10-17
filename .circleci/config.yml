@@ -10,6 +10,15 @@ commands:
             - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
             # Fallback in case checksum fails
             - v2-dependencies-{{ .Branch }}-
+
+  save-cache:
+    steps:
+      - save_cache:
+          paths:
+            - node_modules
+            - /usr/local/share/.cache/yarn/v4
+          key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+
   install-dependencies:
     steps:
       - run: yarn --no-progress --frozen-lockfile
@@ -49,12 +58,6 @@ aliases:
       branches:
         ignore: /.*/
 
-  - &save_cache
-    paths:
-      - node_modules
-      - /usr/local/share/.cache/yarn/v4
-    key: v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-
 jobs:
   env:
     docker:
@@ -72,7 +75,7 @@ jobs:
       - show-env-variables
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
       - run:
           name: Check flow
           command: echo 'check flow'
@@ -86,7 +89,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
       - run:
           name: Flow coverage
           command: echo 'flow coverage 100%'
@@ -100,7 +103,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
       - run: echo 'Build storybook'
 
   bundle_analyzer:
@@ -112,7 +115,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
       - run: echo 'Bundle analyzer'
 
   build:
@@ -124,7 +127,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
       - run: echo 'Build project'
 
   deploy_to_aws:
@@ -145,7 +148,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
 
       - run:
           name: Simulation e2e testing
@@ -164,7 +167,7 @@ jobs:
       - checkout
       - restore-cache
       - install-dependencies
-      - save_cache: *save_cache
+      - save-cache
 
       - run:
           name: Unit testing
