@@ -4,10 +4,13 @@
 version: 2.1
 commands:
   restore-cache:
-    keys:
-      - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-      # Fallback in case checksum fails
-      - v2-dependencies-{{ .Branch }}-
+    steps:
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            # Fallback in case checksum fails
+            - v2-dependencies-{{ .Branch }}-
+
 aliases:
   - &deploy_to_dev
     context: dev
